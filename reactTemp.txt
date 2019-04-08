@@ -1,0 +1,42 @@
+Notes:
+the dir in shift(dir) refer to the direction the user swipe towards.
+1 means toward 1 o'clock (bottom-left toward top-right)
+9 means swipe toward 9 o'clock (right toward left)
+
+----------------------------
+replacement for ternary operator if it doesn't work
+
+
+	if (x[1] > 0) {
+		for (var i = 0; i < size[0]; i++) {
+			if (y[1] > 0) {
+				for (var j = 0; j < size[1]; j++) {
+					if (gameGrid[i][j] == -1) {continue;}
+					if (gameGrid[i + x[0]][j + y[0]] == -1) {continue;}
+					gameGrid[i][j] += gameGrid[i + x[0]][j + y[0]];
+				}				
+			} else {
+				for (var j = size[1]; j > 0; j--) {
+					if (gameGrid[i][j] == -1) {continue;}
+					if (gameGrid[i + x[0]][j + y[0]] == -1) {continue;}
+					gameGrid[i][j] += gameGrid[i + x[0]][j + y[0]];
+				}								
+			}
+		}
+	} else {
+		for (var i = size[0]; i > 0; i--) {
+			if (y[1] > 0) {
+				for (var j = 0; j < size[1]; j++) {
+					if (gameGrid[i][j] == -1) {continue;}
+					if (gameGrid[i + x[0]][j + y[0]] == -1) {continue;}
+					gameGrid[i][j] += gameGrid[i + x[0]][j + y[0]];
+				}				
+			} else {
+				for (var j = size[1]; j > 0; j--) {
+					if (gameGrid[i][j] == -1) {continue;}
+					if (gameGrid[i + x[0]][j + y[0]] == -1) {continue;}
+					gameGrid[i][j] += gameGrid[i + x[0]][j + y[0]];
+				}								
+			}
+		}
+	}
