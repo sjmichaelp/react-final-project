@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import { Button, StyleSheet, Text, View, Image } from 'react-native';
 import GestureRecognizer, {swipeDirections} from '../GestureRecognizer';
+import * as Animatable from 'react-native-animatable';
 
 const startTop = 300;
 const tileSize = 65;
@@ -238,6 +239,11 @@ export default class FinalProject extends Component {
 	reset() {
 		unlock();
 		this.updateState();
+		this.refs.view1.bounceIn(700);
+		this.refs.view2.bounceIn(700);
+		this.refs.view3.bounceIn(700);
+		this.refs.view4.bounceIn(700);
+		this.refs.view5.bounceIn(700);
 	}
 
 	updateState() {
@@ -304,6 +310,13 @@ export default class FinalProject extends Component {
 		shift(dir);
 		generate_random();
 		this.updateState();
+		this.refs.view1.bounceIn(700);
+		this.refs.view2.bounceIn(700);
+		this.refs.view3.bounceIn(700);
+		this.refs.view4.bounceIn(700);
+		this.refs.view5.bounceIn(700);
+
+
 	}
 
 	render () {
@@ -332,127 +345,110 @@ export default class FinalProject extends Component {
 					title="New Game"
 					color="rgb(255,93,67)"
 					/>
-				<View style={[styles.rowBox, {
+				<Animatable.View ref="view1" style={[styles.rowBox, {
 			    	width: tileSize * boxCount[0],
 			    	top: startTop,
 			    }]}>
-					<View style={styles.tile}>
+					<Animatable.View animation="bounceIn" ref="view" style={styles.tile}>
 			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[13]}]}><Text style={[styles.tileText, {color: this.state.text[13]}]}>{this.state.G13}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[13]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[13]}]}></View>
-			    	</View>
-			    					<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[14]}]}><Text style={[styles.tileText, {color: this.state.text[14]}]}>{this.state.G14}</Text></View>
+			    	</Animatable.View>
+					<Animatable.View animation="bounceIn" delay={100} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[14]}]}><Text style={[styles.tileText, {color: this.state.text[14]}]}>{this.state.G14}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[14]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[14]}]}></View>
-			    	</View>
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[15]}]}><Text style={[styles.tileText, {color: this.state.text[15]}]}>{this.state.G15}</Text></View>
+			    	</Animatable.View>
+					<Animatable.View animation="bounceIn" delay={200} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[15]}]}><Text style={[styles.tileText, {color: this.state.text[15]}]}>{this.state.G15}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[15]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[15]}]}></View>
-			    	</View>
-		        </View>
-		        <View style={[styles.rowBox, {
+			    	</Animatable.View>
+		        </Animatable.View>
+		        <Animatable.View ref="view2" style={[styles.rowBox, {
 			    	width: tileSize * boxCount[1],
 			    	top: startTop + tileSize,
 			    }]}>
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[22]}]}><Text style={[styles.tileText, {color: this.state.text[22]}]}>{this.state.G22}</Text></View>
+					<Animatable.View animation="bounceIn" delay={300} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[22]}]}><Text style={[styles.tileText, {color: this.state.text[22]}]}>{this.state.G22}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[22]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[22]}]}></View>
-			    	</View>
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[23]}]}><Text style={[styles.tileText, {color: this.state.text[23]}]}>{this.state.G23}</Text></View>
+			    	</Animatable.View>
+					<Animatable.View animation="bounceIn" delay={400} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[23]}]}><Text style={[styles.tileText, {color: this.state.text[23]}]}>{this.state.G23}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[23]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[23]}]}></View>
-			    	</View>
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[24]}]}><Text style={[styles.tileText, {color: this.state.text[24]}]}>{this.state.G24}</Text></View>
+			    	</Animatable.View>
+					<Animatable.View animation="bounceIn" delay={500} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[24]}]}><Text style={[styles.tileText, {color: this.state.text[24]}]}>{this.state.G24}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[24]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[24]}]}></View>
-			    	</View>
-				    <View style={styles.tile}>
+			    	</Animatable.View>
+				    <Animatable.View animation="bounceIn" delay={600} style={styles.tile}>
 			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[25]}]}><Text style={[styles.tileText, {color: this.state.text[25]}]}>{this.state.G25}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[25]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[25]}]}></View>
-			    	</View>
-		        </View>
-		        <View style={[styles.rowBox, {
+			    	</Animatable.View>
+		        </Animatable.View>
+		        <Animatable.View ref="view3" style={[styles.rowBox, {
 			    	width: tileSize * boxCount[2],
 			    	top: startTop + tileSize * 2,
 			    }]}>
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[31]}]}><Text style={[styles.tileText, {color: this.state.text[31]}]}>{this.state.G31}</Text></View>
+					<Animatable.View animation="bounceIn" delay={700} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[31]}]}><Text style={[styles.tileText, {color: this.state.text[31]}]}>{this.state.G31}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[31]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[31]}]}></View>
-			    	</View>
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[32]}]}><Text style={[styles.tileText, {color: this.state.text[32]}]}>{this.state.G32}</Text></View>
+			    	</Animatable.View>
+					<Animatable.View animation="bounceIn" delay={800} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[32]}]}><Text style={[styles.tileText, {color: this.state.text[32]}]}>{this.state.G32}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[32]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[32]}]}></View>
-			    	</View>
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[33]}]}><Text style={[styles.tileText, {color: this.state.text[33]}]}>{this.state.G33}</Text></View>
+			    	</Animatable.View>
+					<Animatable.View animation="bounceIn" delay={900} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[33]}]}><Text style={[styles.tileText, {color: this.state.text[33]}]}>{this.state.G33}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[33]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[33]}]}></View>
-			    	</View>
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[34]}]}><Text style={[styles.tileText, {color: this.state.text[34]}]}>{this.state.G34}</Text></View>
+			    	</Animatable.View>
+					<Animatable.View animation="bounceIn" delay={1000} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[34]}]}><Text style={[styles.tileText, {color: this.state.text[34]}]}>{this.state.G34}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[34]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[34]}]}></View>
-			    	</View>
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[35]}]}><Text style={[styles.tileText, {color: this.state.text[35]}]}>{this.state.G35}</Text></View>
+			    	</Animatable.View>
+					<Animatable.View animation="bounceIn" delay={1100} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[35]}]}><Text style={[styles.tileText, {color: this.state.text[35]}]}>{this.state.G35}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[35]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[35]}]}></View>
-			    	</View>
-		        </View>
-		        <View style={[styles.rowBox, {
+			    	</Animatable.View>
+		        </Animatable.View>
+		        <Animatable.View ref="view4" style={[styles.rowBox, {
 			    	width: tileSize * boxCount[3],
 			    	top: startTop + tileSize * 3,
 			    }]}>
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[41]}]}><Text style={[styles.tileText, {color: this.state.text[41]}]}>{this.state.G41}</Text></View>
+					<Animatable.View animation="bounceIn" delay={1200} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[41]}]}><Text style={[styles.tileText, {color: this.state.text[41]}]}>{this.state.G41}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[41]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[41]}]}></View>
-			    	</View>
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[42]}]}><Text style={[styles.tileText, {color: this.state.text[42]}]}>{this.state.G42}</Text></View>
+			    	</Animatable.View>
+					<Animatable.View animation="bounceIn" delay={1300} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[42]}]}><Text style={[styles.tileText, {color: this.state.text[42]}]}>{this.state.G42}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[42]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[42]}]}></View>
-			    	</View>
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[43]}]}><Text style={[styles.tileText, {color: this.state.text[43]}]}>{this.state.G43}</Text></View>
+			    	</Animatable.View>
+					<Animatable.View animation="bounceIn" delay={1400} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[43]}]}><Text style={[styles.tileText, {color: this.state.text[43]}]}>{this.state.G43}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[43]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[43]}]}></View>
-			    	</View>
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[44]}]}><Text style={[styles.tileText, {color: this.state.text[44]}]}>{this.state.G44}</Text></View>
+			    	</Animatable.View>
+					<Animatable.View animation="bounceIn" delay={1500} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[44]}]}><Text style={[styles.tileText, {color: this.state.text[44]}]}>{this.state.G44}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[44]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[44]}]}></View>
-			    	</View>
-		        </View>
-		        <View style={[styles.rowBox, {
+			    	</Animatable.View>
+		        </Animatable.View>
+		        <Animatable.View ref="view5" style={[styles.rowBox, {
 			    	width: tileSize * boxCount[4],
 			    	top: startTop + tileSize * 4,
 			    }]}>
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[51]}]}><Text style={[styles.tileText, {color: this.state.text[51]}]}>{this.state.G51}</Text></View>
+					<Animatable.View animation="bounceIn" delay={1600} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[51]}]}><Text style={[styles.tileText, {color: this.state.text[51]}]}>{this.state.G51}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[51]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[51]}]}></View>
-			    	</View>
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[52]}]}><Text style={[styles.tileText, {color: this.state.text[52]}]}>{this.state.G52}</Text></View>
+			    	</Animatable.View>
+					<Animatable.View animation="bounceIn" delay={1700} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[52]}]}><Text style={[styles.tileText, {color: this.state.text[52]}]}>{this.state.G52}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[52]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[52]}]}></View>
-			    	</View>
+			    	</Animatable.View>
 
-			    	<View style={styles.tile}>
-			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[53]}]}><Text style={[styles.tileText, {color: this.state.text[53]}]}>{this.state.G53}</Text></View>
+					<Animatable.View animation="bounceIn" delay={1800} style={styles.tile}><View style={[styles.hexagon, {backgroundColor: this.state.color[53]}]}><Text style={[styles.tileText, {color: this.state.text[53]}]}>{this.state.G53}</Text></View>
 			    	<View style={[styles.hexagonTop, {borderBottomColor: this.state.color[53]}]}></View>
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[53]}]}></View>
-			    	</View>
-		        </View>
+			    	</Animatable.View>
+		        </Animatable.View>
       			</GestureRecognizer>
 	        </View>
 	    )
