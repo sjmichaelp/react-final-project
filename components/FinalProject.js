@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import { Button, StyleSheet, Text, View, Image } from 'react-native';
+import GestureRecognizer, {swipeDirections} from '../GestureRecognizer';
 
 const startTop = 300;
 const tileSize = 65;
@@ -182,6 +183,9 @@ export default class FinalProject extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+		    myText: 'I\'m ready to get swiped!',
+    		gestureName: 'none',
+     		backgroundColor: '#fff',
 			color: {
 				13: '#F2DFC4',
 				14: '#F2DFC4',
@@ -303,47 +307,34 @@ export default class FinalProject extends Component {
 	}
 
 	render () {
+		const config = {
+	      velocityThreshold: 0.3,
+	      directionalOffsetThreshold: 80
+	    };
 	    return (
-	        <View>
+	        <View style={{width:'100%', height:'100%', alignItems:'center'}}>
+	         <GestureRecognizer
+		        onSwipeLeft={() => this.test_scroll(9)}
+		        onSwipeRight={() => this.test_scroll(3)}
+		        onSwipeUpRight={() => this.test_scroll(1)}
+		        onSwipeDownRight={() => this.test_scroll(5)}
+		        onSwipeUpLeft={() => this.test_scroll(11)}
+		        onSwipeDownLeft={() => this.test_scroll(7)}
+		        config={config}
+		        style={{
+		          width: '100%',
+		          height: '100%',
+		          alignItems:'center',
+		        }}
+		        >
 				<Button
 					onPress={() => this.reset()}
 					title="New Game"
 					color="rgb(255,93,67)"
 					/>
-				<Button
-					onPress={() => this.test_scroll(1)}
-					title="Swipe to Top Right"
-					color="rgb(255,93,67)"
-					/>
-				<Button
-					onPress={() => this.test_scroll(3)}
-					title="Swipe to Right"
-					color="rgb(255,93,67)"
-					/>
-				<Button
-					onPress={() => this.test_scroll(5)}
-					title="Swipe to Bottom Right"
-					color="rgb(255,93,67)"
-					/>
-				<Button
-					onPress={() => this.test_scroll(7)}
-					title="Swipe to Bottom Left"
-					color="rgb(255,93,67)"
-					/>
-				<Button
-					onPress={() => this.test_scroll(9)}
-					title="Swipe to Left"
-					color="rgb(255,93,67)"
-					/>
-				<Button
-					onPress={() => this.test_scroll(11)}
-					title="Swipe to Top Left"
-					color="rgb(255,93,67)"
-					/>
 				<View style={[styles.rowBox, {
 			    	width: tileSize * boxCount[0],
 			    	top: startTop,
-			    	left: screenWidth / 2 - tileSize * boxCount[0] / 2,
 			    }]}>
 					<View style={styles.tile}>
 			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[13]}]}><Text style={[styles.tileText, {color: this.state.text[13]}]}>{this.state.G13}</Text></View>
@@ -364,7 +355,6 @@ export default class FinalProject extends Component {
 		        <View style={[styles.rowBox, {
 			    	width: tileSize * boxCount[1],
 			    	top: startTop + tileSize,
-			    	left: (screenWidth - tileSize * boxCount[1]) / 2,
 			    }]}>
 			    	<View style={styles.tile}>
 			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[22]}]}><Text style={[styles.tileText, {color: this.state.text[22]}]}>{this.state.G22}</Text></View>
@@ -390,7 +380,6 @@ export default class FinalProject extends Component {
 		        <View style={[styles.rowBox, {
 			    	width: tileSize * boxCount[2],
 			    	top: startTop + tileSize * 2,
-			    	left: (screenWidth - tileSize * boxCount[2]) / 2,
 			    }]}>
 			    	<View style={styles.tile}>
 			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[31]}]}><Text style={[styles.tileText, {color: this.state.text[31]}]}>{this.state.G31}</Text></View>
@@ -421,7 +410,6 @@ export default class FinalProject extends Component {
 		        <View style={[styles.rowBox, {
 			    	width: tileSize * boxCount[3],
 			    	top: startTop + tileSize * 3,
-			    	left: (screenWidth - tileSize * boxCount[3]) / 2,
 			    }]}>
 			    	<View style={styles.tile}>
 			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[41]}]}><Text style={[styles.tileText, {color: this.state.text[41]}]}>{this.state.G41}</Text></View>
@@ -447,7 +435,6 @@ export default class FinalProject extends Component {
 		        <View style={[styles.rowBox, {
 			    	width: tileSize * boxCount[4],
 			    	top: startTop + tileSize * 4,
-			    	left: (screenWidth - tileSize * boxCount[4]) / 2,
 			    }]}>
 			    	<View style={styles.tile}>
 			    	<View style={[styles.hexagon, {backgroundColor: this.state.color[51]}]}><Text style={[styles.tileText, {color: this.state.text[51]}]}>{this.state.G51}</Text></View>
@@ -466,7 +453,7 @@ export default class FinalProject extends Component {
 			    	<View style={[styles.hexagonBottom, {borderTopColor: this.state.color[53]}]}></View>
 			    	</View>
 		        </View>
-
+      			</GestureRecognizer>
 	        </View>
 	    )
 	}
