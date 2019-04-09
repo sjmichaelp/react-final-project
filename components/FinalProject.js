@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { Button, StyleSheet, Text, View, Image } from 'react-native';
+import { Button, StyleSheet, Text, View, Image, Modal, TouchableHighlight, Alert } from 'react-native';
 import GestureRecognizer, {swipeDirections} from '../GestureRecognizer';
 import * as Animatable from 'react-native-animatable';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const startTop = 300;
 const tileSize = 65;
@@ -129,12 +130,30 @@ var setGrid = (grid) => {
 	gameGrid = temp;
 }
 
+saveLeaderBoardScore = async () => {
+	try {
+		console.log('in saveLeaderBoardScore');
+		var leader_board_string = await AsyncStorage.getItem('leader_board')
+		if (leader_board_string){
+
+		}
+		else {
+
+		}
+	} catch(e) {
+		console.log('error saving leaderboard:', e)
+	}
+
+	console.log('Done saveLeaderBoardScore.')
+}
+
 var winGame = () => {
 	setGrid(winGrid);
 	locked = true;	
 }
 
 var loseGame = () => {
+	
 	setGrid(gameOver);
 	locked = true;	
 }
@@ -184,6 +203,8 @@ export default class FinalProject extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			modalVisible: false,
+				movesMade: 0,
 		    myText: 'I\'m ready to get swiped!',
     		gestureName: 'none',
      		backgroundColor: '#fff',
@@ -232,8 +253,34 @@ export default class FinalProject extends Component {
 		}
 	}
 
+	loadBoardFromStorage = async () => {
+		try {
+			const value = await AsyncStorage.getItem('current_board')
+			const moves_made = await AsyncStorage.getItem('moves_made')
+			console.log('loaded board', value);
+			if (value){ 
+			setGrid(JSON.parse(value));
+			this.updateState();
+			this.refs.view1.bounceIn(700);
+			this.refs.view2.bounceIn(700);
+			this.refs.view3.bounceIn(700);
+			this.refs.view4.bounceIn(700);
+			this.refs.view5.bounceIn(700);
+			this.setState({movesMade: parseInt(moves_made)})
+		}
+		else {
+			this.reset();
+		}
+		} catch(e) {
+			console.log('failed to load board, error:', e);
+			this.reset();
+		}
+	
+	}
+
+
 	componentDidMount () {
-		this.reset();
+		this.loadBoardFromStorage();
 	}
 
 	reset() {
@@ -244,6 +291,7 @@ export default class FinalProject extends Component {
 		this.refs.view3.bounceIn(700);
 		this.refs.view4.bounceIn(700);
 		this.refs.view5.bounceIn(700);
+		this.setState({movesMade: 0})
 	}
 
 	updateState() {
@@ -306,17 +354,40 @@ export default class FinalProject extends Component {
 		this.setState({text: textObj});
 	}
 
+	saveBoardLocally = async () => {
+		try {
+			console.log('in saveBoardLocally');
+			console.log('saved gameGrid', JSON.stringify(gameGrid));
+			await AsyncStorage.setItem('moves_made', this.state.movesMade.toString())
+			await AsyncStorage.setItem('current_board', JSON.stringify(gameGrid))
+		} catch(e) {
+			console.log('move not stored.. error:', e)
+		}
+	
+		console.log('Done saveBoardLocally.')
+	}
+
 	test_scroll(dir) {
+
 		shift(dir);
 		generate_random();
 		this.updateState();
+		this.setState({movesMade: this.state.movesMade+1})
 		this.refs.view1.bounceIn(700);
 		this.refs.view2.bounceIn(700);
 		this.refs.view3.bounceIn(700);
 		this.refs.view4.bounceIn(700);
-		this.refs.view5.bounceIn(700);
+		this.refs.view5.bounceIn(700).then(endState => {
+			this.saveBoardLocally();
+		});
+	}
 
+	setModalVisible(visible) {
+    this.setState({modalVisible: visible});
+  }
 
+	getLeaderBoard() {
+		console.log('get leader board');
 	}
 
 	render () {
@@ -345,6 +416,39 @@ export default class FinalProject extends Component {
 					title="New Game"
 					color="rgb(255,93,67)"
 					/>
+					
+					<Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}>
+          <View style={{marginTop: 22}}>
+            <View>
+              <Leaderboard
+							data={}
+							/>
+
+              <Button
+							color="rgb(255,93,67)"
+							title="Hide Leaderboard"
+                onPress={() => {
+                  this.setModalVisible(!this.state.modalVisible);
+                }}>
+              </Button>
+            </View>
+          </View>
+        </Modal>
+
+        <Button
+				title="Show Leaderboard"
+					color="rgb(255,93,67)"
+          onPress={() => {
+            this.setModalVisible(true);
+          }}>
+        </Button>
+
 				<Animatable.View ref="view1" style={[styles.rowBox, {
 			    	width: tileSize * boxCount[0],
 			    	top: startTop,
