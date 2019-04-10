@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { Button, StyleSheet, Text, View, Image, Modal, TouchableHighlight, Alert } from 'react-native';
+import { Button, StyleSheet, Text, View, Image, Modal, TouchableHighlight, Alert, FlatList } from 'react-native';
+import { ListItem } from 'react-native-elements';
 import GestureRecognizer, {swipeDirections} from '../GestureRecognizer';
 import * as Animatable from 'react-native-animatable';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -130,30 +131,48 @@ var setGrid = (grid) => {
 	gameGrid = temp;
 }
 
-saveLeaderBoardScore = async () => {
+var saveLeaderBoardScore = async () => {
 	try {
-		console.log('in saveLeaderBoardScore');
+		let max_num = 0;
+		for (let i = 0; i < gameGrid.length; i++){
+			for (let a = 0; a < gameGrid[i].length; a++){
+				if (gameGrid[i][a] > max_num){
+					max_num = gameGrid[i][a];
+				}
+			}
+		}
+
+		var moves_made = await AsyncStorage.getItem('moves_made')
+		moves_made_int = parseInt(moves_made) +1;
+		let high_score = {moves_made:moves_made_int.toString(), score: max_num};
+	
 		var leader_board_string = await AsyncStorage.getItem('leader_board')
 		if (leader_board_string){
-
+			leader_board_list = JSON.parse(leader_board_string);
+			leader_board_list[leader_board_list.length] = high_score;
+			await AsyncStorage.setItem('leader_board', JSON.stringify(leader_board_list))
 		}
 		else {
-
+			await AsyncStorage.setItem('leader_board', JSON.stringify([high_score]))
 		}
+		
 	} catch(e) {
-		console.log('error saving leaderboard:', e)
+		console.log('error saving or loading leaderboard:', e)
 	}
 
-	console.log('Done saveLeaderBoardScore.')
+	
+
 }
 
+
 var winGame = () => {
+	saveLeaderBoardScore();
 	setGrid(winGrid);
 	locked = true;	
 }
 
 var loseGame = () => {
-	
+	saveLeaderBoardScore();
 	setGrid(gameOver);
 	locked = true;	
 }
@@ -203,6 +222,7 @@ export default class FinalProject extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			leader_board: [{}],
 			modalVisible: false,
 				movesMade: 0,
 		    myText: 'I\'m ready to get swiped!',
@@ -257,16 +277,17 @@ export default class FinalProject extends Component {
 		try {
 			const value = await AsyncStorage.getItem('current_board')
 			const moves_made = await AsyncStorage.getItem('moves_made')
-			console.log('loaded board', value);
+			console.log(value);
 			if (value){ 
 			setGrid(JSON.parse(value));
 			this.updateState();
-			this.refs.view1.bounceIn(700);
-			this.refs.view2.bounceIn(700);
+			this.refs.view1.bounceIn(700)
+				this.refs.view2.bounceIn(700);
 			this.refs.view3.bounceIn(700);
 			this.refs.view4.bounceIn(700);
-			this.refs.view5.bounceIn(700);
-			this.setState({movesMade: parseInt(moves_made)})
+			this.refs.view5.bounceIn(700).then(endState => {
+				this.setState({movesMade: parseInt(moves_made)})
+			});
 		}
 		else {
 			this.reset();
@@ -278,6 +299,38 @@ export default class FinalProject extends Component {
 	
 	}
 
+	getLeaderBoardFromStorage = async () => {
+		try {
+			const value = await AsyncStorage.getItem('leader_board')
+			if (value){
+
+			// generic comparison function
+			cmp = function(x, y){
+				return x > y ? 1 : x < y ? -1 : 0; 
+			};
+
+			//sort name ascending then id descending
+			sorted_leader_board = JSON.parse(value).sort(function(a, b){
+				return cmp( 
+						[-cmp(a.score, b.score), cmp(a.moves_made, b.moves_made)], 
+						[-cmp(b.score, a.score), cmp(b.moves_made, a.moves_made)]
+				);
+			});
+			for (let x = 0; x < sorted_leader_board.length; x++){
+				sorted_leader_board[x]['rank'] = x+1;
+				if (x >= 5){
+					sorted_leader_board = sorted_leader_board.slice(0, x);
+					break;
+				}
+			}
+			console.log(sorted_leader_board);
+			this.setState({leader_board:sorted_leader_board})
+		}
+		} catch(e) {
+			console.log('failed to load board, error:', e);
+		}
+	
+	}
 
 	componentDidMount () {
 		this.loadBoardFromStorage();
@@ -286,12 +339,15 @@ export default class FinalProject extends Component {
 	reset() {
 		unlock();
 		this.updateState();
-		this.refs.view1.bounceIn(700);
+		this.refs.view1.bounceIn(700)
 		this.refs.view2.bounceIn(700);
 		this.refs.view3.bounceIn(700);
 		this.refs.view4.bounceIn(700);
-		this.refs.view5.bounceIn(700);
-		this.setState({movesMade: 0})
+		this.refs.view5.bounceIn(700).then(endState => {
+			this.setState({movesMade: 0})
+		});
+		
+		
 	}
 
 	updateState() {
@@ -353,22 +409,19 @@ export default class FinalProject extends Component {
 		this.setState({color: obj});
 		this.setState({text: textObj});
 	}
+	
 
 	saveBoardLocally = async () => {
 		try {
-			console.log('in saveBoardLocally');
-			console.log('saved gameGrid', JSON.stringify(gameGrid));
 			await AsyncStorage.setItem('moves_made', this.state.movesMade.toString())
 			await AsyncStorage.setItem('current_board', JSON.stringify(gameGrid))
 		} catch(e) {
 			console.log('move not stored.. error:', e)
 		}
 	
-		console.log('Done saveBoardLocally.')
 	}
 
 	test_scroll(dir) {
-
 		shift(dir);
 		generate_random();
 		this.updateState();
@@ -386,9 +439,6 @@ export default class FinalProject extends Component {
     this.setState({modalVisible: visible});
   }
 
-	getLeaderBoard() {
-		console.log('get leader board');
-	}
 
 	render () {
 		const config = {
@@ -396,7 +446,7 @@ export default class FinalProject extends Component {
 	      directionalOffsetThreshold: 80
 	    };
 	    return (
-	        <View style={{width:'100%', height:'100%', alignItems:'center'}}>
+	        <View style={{width:'100%', height:'100%', alignItems:'center', backgroundColor:'rgb(64,64,64)'}}>
 	         <GestureRecognizer
 		        onSwipeLeft={() => this.test_scroll(9)}
 		        onSwipeRight={() => this.test_scroll(3)}
@@ -418,16 +468,27 @@ export default class FinalProject extends Component {
 					/>
 					
 					<Modal
+					style={{backgroundColor:'rgb(64,64,64)'}}
           animationType="slide"
           transparent={false}
           visible={this.state.modalVisible}
           onRequestClose={() => {
             Alert.alert('Modal has been closed.');
           }}>
-          <View style={{marginTop: 22}}>
-            <View>
-              <Leaderboard
-							data={}
+          <View style={{marginTop: 22, backgroundColor:'rgb(64,64,64)'}}>
+            <View style={styles.modalView}>
+							<FlatList
+							data={this.state.leader_board}
+							keyExtractor={(item, index) => index.toString()}
+							renderItem={({ item }) => (
+								<ListItem
+								containerStyle={{ backgroundColor:'rgb(64,64,64)', borderBottomColor: 'red', borderBottomWidth:1, borderRadius:5 }}
+ 								title={`Rank: ${item.rank}`}
+								subtitle={`Score Achieved: ${item.score} 	Moves Made: ${item.moves_made}`}
+								titleStyle={{ color: 'white', fontWeight: 'bold' }}
+								subtitleStyle={{ color: 'white' }}
+								/>
+							)}
 							/>
 
               <Button
@@ -445,6 +506,7 @@ export default class FinalProject extends Component {
 				title="Show Leaderboard"
 					color="rgb(255,93,67)"
           onPress={() => {
+						this.getLeaderBoardFromStorage();
             this.setModalVisible(true);
           }}>
         </Button>
@@ -615,6 +677,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 17,
     borderBottomColor: 'rgb(255,93,67)'
 
-  }
+	},
+	modalView: {
+		backgroundColor: 'rgb(64,64,64)',
+	},
+	listItemStyle: {
+
+	},
 
 })
