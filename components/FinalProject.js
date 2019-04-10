@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import Modal from "react-native-modal";
 
 
-const startTop = 300;
+const startTop = 250;
 const tileSize = 65;
 const screenWidth = 180;
 var boxCount = [3,4,5,4,3];
@@ -534,7 +534,7 @@ export default class FinalProject extends Component {
             this.setModalVisible(true);
           }}>
         </Button>
-
+        <Text style={{color: "#F2DFC4", fontSize: 20, marginTop: 20}}>Moves Made: {this.state.movesMade}</Text>
 				<Animatable.View ref="view1" style={[styles.rowBox, {
 			    	width: tileSize * boxCount[0],
 			    	top: startTop,
