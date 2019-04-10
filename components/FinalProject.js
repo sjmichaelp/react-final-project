@@ -299,7 +299,10 @@ export default class FinalProject extends Component {
 				} else if (gameGrid[i][j] == '128') {
 					obj[d] = 'green';
 					textObj[d] = 'white';
-				} 
+				} else {
+					obj[d] = 'rgb(236, 196, 2)';
+					textObj[d] = 'white';
+				}
 			}
 		}
 		this.setState({color: obj});

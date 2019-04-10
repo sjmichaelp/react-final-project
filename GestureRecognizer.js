@@ -130,7 +130,6 @@ class GestureRecognizer extends Component {
   }
 
   _isValidDiagonalSwipe(gestureState) {
-    console.log(gestureState);
     const {vy, dx, vx, dy} = gestureState;
     const {velocityThreshold, directionalOffsetThreshold} = this.swipeConfig;
     return true;
