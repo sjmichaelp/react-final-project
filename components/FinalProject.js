@@ -1,10 +1,12 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { Button, StyleSheet, Text, View, Image, Modal, TouchableHighlight, Alert, FlatList } from 'react-native';
+import { Button, StyleSheet, Text, View, Image, TouchableHighlight, Alert, FlatList } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import GestureRecognizer, {swipeDirections} from '../GestureRecognizer';
 import * as Animatable from 'react-native-animatable';
 import AsyncStorage from '@react-native-community/async-storage';
+import Modal from "react-native-modal";
+
 
 const startTop = 300;
 const tileSize = 65;
@@ -148,9 +150,28 @@ var saveLeaderBoardScore = async () => {
 	
 		var leader_board_string = await AsyncStorage.getItem('leader_board')
 		if (leader_board_string){
-			leader_board_list = JSON.parse(leader_board_string);
-			leader_board_list[leader_board_list.length] = high_score;
-			await AsyncStorage.setItem('leader_board', JSON.stringify(leader_board_list))
+			let leader_board_json = JSON.parse(leader_board_string);
+			if (leader_board_json.length > 7)
+			{
+
+				sorted_leader_board = leader_board_json.sort(function(a, b){
+					return cmp( 
+							[-cmp(a.score, b.score), cmp(a.moves_made, b.moves_made)], 
+							[-cmp(b.score, a.score), cmp(b.moves_made, a.moves_made)]
+					);
+				});
+				for (let x = 0; x < sorted_leader_board.length; x++){
+					if (x >= 7){
+						sorted_leader_board = sorted_leader_board.slice(0, x);
+						break;
+					}
+				}
+
+
+
+			}
+			sorted_leader_board[sorted_leader_board.length] = high_score;
+			await AsyncStorage.setItem('leader_board', JSON.stringify(sorted_leader_board))
 		}
 		else {
 			await AsyncStorage.setItem('leader_board', JSON.stringify([high_score]))
@@ -277,7 +298,6 @@ export default class FinalProject extends Component {
 		try {
 			const value = await AsyncStorage.getItem('current_board')
 			const moves_made = await AsyncStorage.getItem('moves_made')
-			console.log(value);
 			if (value){ 
 			setGrid(JSON.parse(value));
 			this.updateState();
@@ -318,12 +338,11 @@ export default class FinalProject extends Component {
 			});
 			for (let x = 0; x < sorted_leader_board.length; x++){
 				sorted_leader_board[x]['rank'] = x+1;
-				if (x >= 5){
+				if (x >= 7){
 					sorted_leader_board = sorted_leader_board.slice(0, x);
 					break;
 				}
 			}
-			console.log(sorted_leader_board);
 			this.setState({leader_board:sorted_leader_board})
 		}
 		} catch(e) {
@@ -468,21 +487,23 @@ export default class FinalProject extends Component {
 					/>
 					
 					<Modal
-					style={{backgroundColor:'rgb(64,64,64)'}}
-          animationType="slide"
+					isVisible={this.state.modalVisible}
+					animationIn={'slideInUp'}
+					animationOut={'slideOutDown'}
+					hideModalContentWhileAnimating={true}
           transparent={false}
-          visible={this.state.modalVisible}
+					useNativeDriver={true}
           onRequestClose={() => {
             Alert.alert('Modal has been closed.');
           }}>
-          <View style={{marginTop: 22, backgroundColor:'rgb(64,64,64)'}}>
-            <View style={styles.modalView}>
+          <View style={{marginTop: 22}}>
+            <View>
 							<FlatList
 							data={this.state.leader_board}
 							keyExtractor={(item, index) => index.toString()}
 							renderItem={({ item }) => (
 								<ListItem
-								containerStyle={{ backgroundColor:'rgb(64,64,64)', borderBottomColor: 'red', borderBottomWidth:1, borderRadius:5 }}
+								containerStyle={{ backgroundColor:'rgb(64,64,64)', borderBottomColor: 'rgb(64,64,64)', borderBottomWidth:3, borderRadius:5, margin:5 }}
  								title={`Rank: ${item.rank}`}
 								subtitle={`Score Achieved: ${item.score} 	Moves Made: ${item.moves_made}`}
 								titleStyle={{ color: 'white', fontWeight: 'bold' }}
@@ -679,7 +700,6 @@ const styles = StyleSheet.create({
 
 	},
 	modalView: {
-		backgroundColor: 'rgb(64,64,64)',
 	},
 	listItemStyle: {
 
