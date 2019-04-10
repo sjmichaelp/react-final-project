@@ -1,8 +1,12 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { Button, StyleSheet, Text, View, Image } from 'react-native';
+import { Button, StyleSheet, Text, View, Image, TouchableHighlight, Alert, FlatList } from 'react-native';
+import { ListItem } from 'react-native-elements';
 import GestureRecognizer, {swipeDirections} from '../GestureRecognizer';
 import * as Animatable from 'react-native-animatable';
+import AsyncStorage from '@react-native-community/async-storage';
+import Modal from "react-native-modal";
+
 
 const startTop = 300;
 const tileSize = 65;
@@ -129,12 +133,67 @@ var setGrid = (grid) => {
 	gameGrid = temp;
 }
 
+var saveLeaderBoardScore = async () => {
+	try {
+		let max_num = 0;
+		for (let i = 0; i < gameGrid.length; i++){
+			for (let a = 0; a < gameGrid[i].length; a++){
+				if (gameGrid[i][a] > max_num){
+					max_num = gameGrid[i][a];
+				}
+			}
+		}
+
+		var moves_made = await AsyncStorage.getItem('moves_made')
+		moves_made_int = parseInt(moves_made) +1;
+		let high_score = {moves_made:moves_made_int.toString(), score: max_num};
+	
+		var leader_board_string = await AsyncStorage.getItem('leader_board')
+		if (leader_board_string){
+			let leader_board_json = JSON.parse(leader_board_string);
+			if (leader_board_json.length > 7)
+			{
+
+				sorted_leader_board = leader_board_json.sort(function(a, b){
+					return cmp( 
+							[-cmp(a.score, b.score), cmp(a.moves_made, b.moves_made)], 
+							[-cmp(b.score, a.score), cmp(b.moves_made, a.moves_made)]
+					);
+				});
+				for (let x = 0; x < sorted_leader_board.length; x++){
+					if (x >= 7){
+						sorted_leader_board = sorted_leader_board.slice(0, x);
+						break;
+					}
+				}
+
+
+
+			}
+			sorted_leader_board[sorted_leader_board.length] = high_score;
+			await AsyncStorage.setItem('leader_board', JSON.stringify(sorted_leader_board))
+		}
+		else {
+			await AsyncStorage.setItem('leader_board', JSON.stringify([high_score]))
+		}
+		
+	} catch(e) {
+		console.log('error saving or loading leaderboard:', e)
+	}
+
+	
+
+}
+
+
 var winGame = () => {
+	saveLeaderBoardScore();
 	setGrid(winGrid);
 	locked = true;	
 }
 
 var loseGame = () => {
+	saveLeaderBoardScore();
 	setGrid(gameOver);
 	locked = true;	
 }
@@ -184,6 +243,9 @@ export default class FinalProject extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			leader_board: [{}],
+			modalVisible: false,
+				movesMade: 0,
 		    myText: 'I\'m ready to get swiped!',
     		gestureName: 'none',
      		backgroundColor: '#fff',
@@ -232,18 +294,79 @@ export default class FinalProject extends Component {
 		}
 	}
 
+	loadBoardFromStorage = async () => {
+		try {
+			const value = await AsyncStorage.getItem('current_board')
+			const moves_made = await AsyncStorage.getItem('moves_made')
+			if (value){ 
+			setGrid(JSON.parse(value));
+			this.updateState();
+			this.refs.view1.bounceIn(700)
+				this.refs.view2.bounceIn(700);
+			this.refs.view3.bounceIn(700);
+			this.refs.view4.bounceIn(700);
+			this.refs.view5.bounceIn(700).then(endState => {
+				this.setState({movesMade: parseInt(moves_made)})
+			});
+		}
+		else {
+			this.reset();
+		}
+		} catch(e) {
+			console.log('failed to load board, error:', e);
+			this.reset();
+		}
+	
+	}
+
+	getLeaderBoardFromStorage = async () => {
+		try {
+			const value = await AsyncStorage.getItem('leader_board')
+			if (value){
+
+			// generic comparison function
+			cmp = function(x, y){
+				return x > y ? 1 : x < y ? -1 : 0; 
+			};
+
+			//sort name ascending then id descending
+			sorted_leader_board = JSON.parse(value).sort(function(a, b){
+				return cmp( 
+						[-cmp(a.score, b.score), cmp(a.moves_made, b.moves_made)], 
+						[-cmp(b.score, a.score), cmp(b.moves_made, a.moves_made)]
+				);
+			});
+			for (let x = 0; x < sorted_leader_board.length; x++){
+				sorted_leader_board[x]['rank'] = x+1;
+				if (x >= 7){
+					sorted_leader_board = sorted_leader_board.slice(0, x);
+					break;
+				}
+			}
+			this.setState({leader_board:sorted_leader_board})
+		}
+		} catch(e) {
+			console.log('failed to load board, error:', e);
+		}
+	
+	}
+
 	componentDidMount () {
-		this.reset();
+		this.loadBoardFromStorage();
 	}
 
 	reset() {
 		unlock();
 		this.updateState();
-		this.refs.view1.bounceIn(700);
+		this.refs.view1.bounceIn(700)
 		this.refs.view2.bounceIn(700);
 		this.refs.view3.bounceIn(700);
 		this.refs.view4.bounceIn(700);
-		this.refs.view5.bounceIn(700);
+		this.refs.view5.bounceIn(700).then(endState => {
+			this.setState({movesMade: 0})
+		});
+		
+		
 	}
 
 	updateState() {
@@ -308,19 +431,36 @@ export default class FinalProject extends Component {
 		this.setState({color: obj});
 		this.setState({text: textObj});
 	}
+	
+
+	saveBoardLocally = async () => {
+		try {
+			await AsyncStorage.setItem('moves_made', this.state.movesMade.toString())
+			await AsyncStorage.setItem('current_board', JSON.stringify(gameGrid))
+		} catch(e) {
+			console.log('move not stored.. error:', e)
+		}
+	
+	}
 
 	test_scroll(dir) {
 		shift(dir);
 		generate_random();
 		this.updateState();
+		this.setState({movesMade: this.state.movesMade+1})
 		this.refs.view1.bounceIn(700);
 		this.refs.view2.bounceIn(700);
 		this.refs.view3.bounceIn(700);
 		this.refs.view4.bounceIn(700);
-		this.refs.view5.bounceIn(700);
-
-
+		this.refs.view5.bounceIn(700).then(endState => {
+			this.saveBoardLocally();
+		});
 	}
+
+	setModalVisible(visible) {
+    this.setState({modalVisible: visible});
+  }
+
 
 	render () {
 		const config = {
@@ -328,7 +468,7 @@ export default class FinalProject extends Component {
 	      directionalOffsetThreshold: 80
 	    };
 	    return (
-	        <View style={{width:'100%', height:'100%', alignItems:'center'}}>
+	        <View style={{width:'100%', height:'100%', alignItems:'center', backgroundColor:'rgb(64,64,64)'}}>
 	         <GestureRecognizer
 		        onSwipeLeft={() => this.test_scroll(9)}
 		        onSwipeRight={() => this.test_scroll(3)}
@@ -348,6 +488,53 @@ export default class FinalProject extends Component {
 					title="New Game"
 					color="rgb(255,93,67)"
 					/>
+					
+					<Modal
+					isVisible={this.state.modalVisible}
+					animationIn={'slideInUp'}
+					animationOut={'slideOutDown'}
+					hideModalContentWhileAnimating={true}
+          transparent={false}
+					useNativeDriver={true}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}>
+          <View style={{marginTop: 22}}>
+            <View>
+							<FlatList
+							data={this.state.leader_board}
+							keyExtractor={(item, index) => index.toString()}
+							renderItem={({ item }) => (
+								<ListItem
+								containerStyle={{ backgroundColor:'rgb(64,64,64)', borderBottomColor: 'rgb(64,64,64)', borderBottomWidth:3, borderRadius:5, margin:5 }}
+ 								title={`Rank: ${item.rank}`}
+								subtitle={`Score Achieved: ${item.score} 	Moves Made: ${item.moves_made}`}
+								titleStyle={{ color: 'white', fontWeight: 'bold' }}
+								subtitleStyle={{ color: 'white' }}
+								/>
+							)}
+							/>
+
+              <Button
+							color="rgb(255,93,67)"
+							title="Hide Leaderboard"
+                onPress={() => {
+                  this.setModalVisible(!this.state.modalVisible);
+                }}>
+              </Button>
+            </View>
+          </View>
+        </Modal>
+
+        <Button
+				title="Show Leaderboard"
+					color="rgb(255,93,67)"
+          onPress={() => {
+						this.getLeaderBoardFromStorage();
+            this.setModalVisible(true);
+          }}>
+        </Button>
+
 				<Animatable.View ref="view1" style={[styles.rowBox, {
 			    	width: tileSize * boxCount[0],
 			    	top: startTop,
@@ -514,6 +701,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 17,
     borderBottomColor: 'rgb(255,93,67)'
 
-  }
+	},
+	modalView: {
+	},
+	listItemStyle: {
+
+	},
 
 })
